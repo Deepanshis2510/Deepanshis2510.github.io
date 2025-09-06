@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Google "Search Result" Pitch — Deepanshi</title>
+  <style>
+    /* CSS Variables for a dark, Google-like theme */
+    :root{
+      --bg:#0f1115;
+      --card:#151923;
+      --muted:#aab2c0;
+      --text:#e6e9ef;
+      --accent:#8ab4f8;
+      --gblue:#4285F4; --gred:#DB4437; --gyellow:#F4B400; --ggreen:#0F9D58;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 10px 25px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+      background:radial-gradient(1200px 800px at 20% -10%, #101523 0%, #0e121a 40%, #0b0e14 100%), var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Header with a subtle blur effect */
+    .header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter:saturate(1.2) blur(8px);
+      background:linear-gradient(180deg, rgba(13,16,22,.9), rgba(13,16,22,.7));
+      border-bottom:1px solid var(--border);
+    }
+    .bar{max-width:1100px; margin:0 auto; padding:14px 18px; display:flex; align-items:center; gap:14px}
+    .logo{display:flex; align-items:center; gap:8px; font-weight:700; letter-spacing:.3px}
+    .gdot{width:10px; height:10px; border-radius:50%}
+    .gdot.blue{background:var(--gblue)}
+    .gdot.red{background:var(--gred)}
+    .gdot.yellow{background:var(--gyellow)}
+    .gdot.green{background:var(--ggreen)}
+    .search{
+      flex:1; display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--border);
+      background:#0f1420; border-radius:999px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .search input{flex:1; background:transparent; border:0; outline:0; color:var(--text); font-size:15px}
+    .chiprow{max-width:1100px; margin:6px auto 0; padding:0 18px 12px; display:flex; gap:8px; flex-wrap:wrap}
+    .chip{padding:6px 10px; border:1px solid var(--border); border-radius:999px; color:var(--muted)}
+
+    /* Main layout with a two-column grid for desktop */
+    .wrap{max-width:1100px; margin:18px auto; padding:0 18px; display:grid; grid-template-columns: minmax(0,1fr) 340px; gap:20px}
+    @media (max-width: 980px){
+      .wrap{grid-template-columns:1fr}
+      .kp{position:relative; top:auto}
+    }
+
+    /* Card styles for main results and panels */
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .result{padding:16px 18px}
+    .result + .result{margin-top:10px}
+    .res-title{font-size:20px; font-weight:600; margin:0 0 6px}
+    .res-url{font-size:13px; color:var(--muted); margin-bottom:6px}
+    .res-snippet{color:#cfd6e6}
+
+    /* Knowledge Panel styles */
+    .kp{position:sticky; top:80px; align-self:start}
+    .kp .head{display:flex; align-items:center; gap:12px; padding:16px}
+    .avatar{
+      width:56px; height:56px; border-radius:14px; background:linear-gradient(135deg, var(--gblue), var(--gred));
+      display:grid; place-items:center; font-weight:800
+    }
+    .kp h3{margin:0; font-size:18px}
+    .kp .tag{font-size:12px; color:var(--muted)}
+    .kp .body{padding:0 16px 16px; display:grid; gap:10px}
+    .kp ul{margin:6px 0 0 18px}
+    .kp li{margin:4px 0}
+
+    /* People Also Ask (PAA) styles */
+    .paa{padding:10px 14px}
+    .paa h4{margin:6px 4px 10px; color:#d7deee}
+    .qa{border-top:1px solid var(--border)}
+    .qa button{
+      width:100%; text-align:left; padding:14px 0; background:transparent; border:0; color:var(--text); cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:15px
+    }
+    .qa .ans{max-height:0; overflow:hidden; transition:max-height .35s ease}
+    .qa.open .ans{max-height:400px}
+    .chev{transition:transform .3s ease}
+    .qa.open .chev{transform:rotate(180deg)}
+
+    /* Related searches styles */
+    .related{padding:14px 16px}
+    .pill{display:inline-flex; align-items:center; gap:8px; margin:6px; padding:8px 12px; border:1px solid var(--border); border-radius:999px; color:#cfe1ff; background:rgba(66,133,244,.08)}
+
+    /* Footer with colored bars */
+    .footer{max-width:1100px; margin:12px auto 60px; padding:0 18px; display:flex; gap:8px}
+    .barlets{height:6px; border-radius:999px; flex:1}
+    .b1{background:var(--gblue)} .b2{background:var(--gred)} .b3{background:var(--gyellow)} .b4{background:var(--ggreen)}
+
+    /* Visual delight effects */
+    .pulse{position:absolute; inset:0; pointer-events:none}
+    .pulse::after{content:""; position:absolute; right:24px; top:50%; translate:0 -50%; width:10px; height:10px; border-radius:50%;
+      background:var(--gblue); box-shadow:0 0 0 0 rgba(66,133,244,.7); animation:pulse 2s infinite}
+    @keyframes pulse{to{box-shadow:0 0 0 14px rgba(66,133,244,0)}}
+
+    .kbd{font:12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color:#8aa0c7; opacity:.8}
+  </style>
+</head>
+<body>
+  <!-- Main content sections -->
+  <header class="header">
+    <div class="bar">
+      <div class="logo" aria-label="Google Style Logo">
+        <span class="gdot blue"></span>
+        <span class="gdot red"></span>
+        <span class="gdot yellow"></span>
+        <span class="gdot green"></span>
+        <span style="opacity:.9">g</span><span style="color:var(--gblue)">•</span><span style="color:var(--gred)">o</span><span style="color:var(--gyellow)">o</span><span style="color:var(--gblue)">g</span><span style="color:var(--ggreen)">l</span><span style="color:var(--gred)">e</span>
+      </div>
+      <div class="search">
+        <input id="q" placeholder="Why do you deserve to be a Google Student Ambassador?" aria-label="Search" />
+        <span class="kbd">Enter ↵</span>
+        <div class="pulse" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="chiprow" id="chips"></div>
+  </header>
+
+  <main class="wrap">
+    <!-- Left: Results -->
+    <section>
+      <!-- Main result -->
+      <article class="card result" id="mainResult" role="article" aria-labelledby="resTitle">
+        <div class="res-url">deepanshi.dev › ambassador-pitch</div>
+        <h1 class="res-title" id="resTitle">Deepanshi — Google Student Ambassador Pitch</h1>
+        <p class="res-snippet" id="resSnippet">
+          Imagine a campus where tech isn’t just in classrooms but in every conversation over chai, where students don’t just use Google tools but create with them. That’s the campus I, <strong>Deepanshi</strong>, want to build as a Google Student Ambassador. I’m not just a coder—I’m a bridge between ideas and execution, between students and opportunities. If innovation had a campus map, I’d be the pin you’d find at the heart of it.
+        </p>
+      </article>
+
+      <!-- People also ask -->
+      <section class="card paa" aria-label="People also ask">
+        <h4>People also ask</h4>
+
+        <div class="qa">
+          <button aria-expanded="false"><span>How will Deepanshi engage students?</span>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="ans">
+            <p>Run monthly <strong>“Gemini AI Challenge”</strong> sessions (prompt design + hands-on demos), organize a campus-wide <strong>Google Maps Scavenger Hunt</strong>, host <strong>Cloud Study Jams</strong> with Qwiklabs-style quests, and set up a <strong>“Chai & Code”</strong> help desk using Google Meet + Forms for peer mentoring.</p>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button aria-expanded="false"><span>What makes Deepanshi different?</span>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="ans">
+            <p>A builder–communicator hybrid: ships projects fast, then tells the story clearly. Led hack-style workshops, simplified complex ideas into <em>learn-by-doing</em> activities, and turned curiosity into campus-wide collaboration.</p>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button aria-expanded="false"><span>Which Google technologies has Deepanshi used?</span>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="ans">
+            <ul>
+              <li><strong>Gemini</strong> for ideation and prototyping demos.</li>
+              <li><strong>Firebase</strong> (Auth, Firestore, Hosting) for rapid web app backends.</li>
+              <li><strong>Google Cloud</strong> basics (Cloud Run, Cloud Storage) for deploys.</li>
+              <li><strong>Maps Platform</strong> for interactive campus experiences.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="qa">
+          <button aria-expanded="false"><span>What will success look like by the end of the year?</span>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="ans">
+            <p>Three shipped student-led apps, two packed <strong>Dev Festivals</strong>, an active <strong>Google Developer Student Club</strong>, and a repeatable playbook so the impact scales beyond one cohort.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Related searches -->
+      <section class="card related" aria-label="Related searches">
+        <div style="margin-bottom:8px; color:#d7deee">Related searches</div>
+        <span class="pill">increased campus engagement</span>
+        <span class="pill">new student tech club</span>
+        <span class="pill">successful workshop series</span>
+        <span class="pill">gemini ai challenge</span>
+        <span class="pill">google maps hackathon</span>
+        <span class="pill">cloud study jams</span>
+      </section>
+
+      <!-- Extra flavored results (mini cards) -->
+      <article class="card result">
+        <div class="res-url">events.deepanshi.dev › chai-and-code</div>
+        <h2 class="res-title">“Chai & Code” — weekly peer learning</h2>
+        <p class="res-snippet">Drop-in help hours and lightning talks. Students submit topics via Google Forms, meet on Google Meet, and build together. Notes and demos archived for everyone.</p>
+      </article>
+
+      <article class="card result">
+        <div class="res-url">maps.deepanshi.dev › scavenger-hunt</div>
+        <h2 class="res-title">Google Maps Scavenger Hunt — campus edition</h2>
+        <p class="res-snippet">QR clues across campus, location-based riddles, and a live leaderboard. Built with the Maps Platform + a tiny Firebase backend.</p>
+      </article>
+
+    </section>
+
+    <!-- Right: Knowledge Panel -->
+    <aside class="card kp" role="complementary" aria-label="Knowledge panel">
+      <div class="head">
+        <div class="avatar" aria-hidden="true">D</div>
+        <div>
+          <h3>Deepanshi</h3>
+          <div class="tag">Google Student Ambassador — Candidate</div>
+        </div>
+      </div>
+      <div class="body">
+        <div>
+          <strong>About</strong>
+          <p>Community-first builder who turns ideas into campus impact with Google tech and playful events.</p>
+        </div>
+        <div>
+          <strong>Skills</strong>
+          <ul>
+            <li>Event Planning, Public Speaking, Community Building</li>
+            <li> Mentoring, Content Creation</li>
+            <li>Web Dev (HTML, CSS, JS), Cloud basics</li>
+           <li> With a strong foundation in programming languages such as Python, Java, SQL and R, along with hands-on experience in projects related to AI/ML</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Known for</strong>
+          <ul>
+            <li>Innovative ideas, passion for tech</li>
+            <li>Making learning fun (games + challenges)</li>
+            <li>Clear communication & inclusive spaces</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Contact</strong>
+          <ul>
+            <li>Email: deepanshiofficial1@gmail.com</li>
+            <li>Portfolio: https://www.linkedin.com/in/deepanshi-sharma25</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="footer">
+    <div class="barlets b1"></div>
+    <div class="barlets b2"></div>
+    <div class="barlets b3"></div>
+    <div class="barlets b4"></div>
+  </div>
+
+  <script>
+    // This script makes the page interactive. It's written in vanilla JavaScript
+    // and is fully self-contained.
+
+    // 1. Dynamic chips at the top
+    const chipData = [
+      'gemini ai challenge', 'maps scavenger hunt', 'cloud study jams', 'firebase auth demo', 'gdsc kickoff', 'chai & code'
+    ];
+    const chipsEl = document.getElementById('chips');
+    chipData.forEach((c) => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = c;
+      chipsEl.appendChild(span);
+    });
+
+    // 2. Search effect that updates the main snippet
+    const q = document.getElementById('q');
+    const resTitle = document.getElementById('resTitle');
+    const resSnippet = document.getElementById('resSnippet');
+    q.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = q.value.trim();
+        if (!val) return;
+        resTitle.textContent = `Search results for "${val}" — Deepanshi`;
+        resSnippet.innerHTML = `Answer: <strong>Deepanshi</strong> will tackle “${val}” with a community-first plan — fast demos, peer learning, and measurable outcomes.`;
+      }
+    });
+
+    // 3. People Also Ask accordion behavior
+    document.querySelectorAll('.qa').forEach((qa) => {
+      const btn = qa.querySelector('button');
+      btn.addEventListener('click', () => {
+        const isOpen = qa.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+      });
+    });
+
+    // 4. Delight: type placeholder
+    const prompts = [
+      'How will you engage students?',
+      'What makes you different?',
+      'Google Maps + Firebase event idea',
+      'Why you deserve to be an Ambassador?'
+    ];
+    let i = 0;
+    function cycle() {
+      q.setAttribute('placeholder', prompts[i % prompts.length]);
+      i++;
+    }
+    setInterval(cycle, 3000);
+
+    // 5. Accessibility: focus ring for keyboard users
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') document.body.classList.add('kbd-nav');
+    });
+  </script>
+</body>
+</html>
